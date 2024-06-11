@@ -5,9 +5,12 @@ import java.math.BigInteger
 import java.security.SecureRandom
 
 
+private const val PRIME_SIZE = 1024
+private const val KEY_EXPONENT_SIZE = 128
+
 fun generateKeyPair(): Pair<PublicKey, PrivateKey> {
-    val firstPrime = PrimeGenerator.generatePrime()
-    val secondPrime = PrimeGenerator.generatePrime()
+    val firstPrime = PrimeGenerator.generatePrime(PRIME_SIZE)
+    val secondPrime = PrimeGenerator.generatePrime(PRIME_SIZE)
 
     val modulus = getSystemModulus(firstPrime, secondPrime)
 
@@ -25,18 +28,8 @@ fun generateKeyPair(): Pair<PublicKey, PrivateKey> {
     return Pair(publicKey, privateKey)
 }
 
-private fun computePrivateKey(publicKey: BigInteger, eulerFunction: BigInteger) =
-    publicKey.modInverse(eulerFunction)
-
-
-private fun computePublicKey(phiValue: BigInteger): BigInteger {
-    var publicKey: BigInteger
-
-    do {
-        publicKey = BigInteger(128, SecureRandom())
-    } while (publicKey.gcd(phiValue) != BigInteger.ONE)
-    return publicKey
-}
+private fun getSystemModulus(firstPrime: BigInteger, secondPrime: BigInteger): BigInteger =
+    firstPrime.multiply(secondPrime)
 
 private fun computeEulerFunction(firstPrime: BigInteger, secondPrime: BigInteger): BigInteger {
     val firstPrimeMinusOne = firstPrime.subtract(BigInteger.ONE)
@@ -45,5 +38,13 @@ private fun computeEulerFunction(firstPrime: BigInteger, secondPrime: BigInteger
     return firstPrimeMinusOne.multiply(secondPrimeMinusOne)
 }
 
-private fun getSystemModulus(firstPrime: BigInteger, secondPrime: BigInteger): BigInteger =
-    firstPrime.multiply(secondPrime)
+private fun computePublicKey(phiValue: BigInteger): BigInteger {
+    var publicKey: BigInteger
+    do {
+        publicKey = BigInteger(KEY_EXPONENT_SIZE, SecureRandom())
+    } while (publicKey.gcd(phiValue) != BigInteger.ONE)
+    return publicKey
+}
+
+private fun computePrivateKey(publicKey: BigInteger, eulerFunction: BigInteger) =
+    publicKey.modInverse(eulerFunction)

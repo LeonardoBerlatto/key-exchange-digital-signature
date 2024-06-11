@@ -5,5 +5,5 @@ import java.security.SecureRandom
 
 object PrimeGenerator {
 
-    fun generatePrime(): BigInteger = BigInteger.probablePrime(1024, SecureRandom())
+    fun generatePrime(size: Int): BigInteger = BigInteger.probablePrime(size, SecureRandom())
 }
