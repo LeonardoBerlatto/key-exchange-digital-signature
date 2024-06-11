@@ -1,5 +1,8 @@
 package org.example
 
+import org.example.aes.encryptWithPublicKey
+import org.example.aes.generateAESKey
+import org.example.aes.signEncryptedKey
 import org.example.rsa.KeyGeneratorService
 import org.example.rsa.PublicKey
 import java.nio.file.Files
@@ -17,8 +20,14 @@ fun main() {
         n = readProfessorPublicKey("src/main/resources/professor_public_key.txt")
     )
     val keyPair = KeyGeneratorService.generateKeyPair()
-    println("Public key: ${keyPair.first.hexExponent()}")
-    println("Private key: ${keyPair.second.hexExponent()}")
+    val publicKey = keyPair.first
+    val privateKey = keyPair.second
 
+    println("Public key: ${publicKey.hexExponent()}")
+    println("Private key: ${privateKey.hexExponent()}")
 
+    val key = generateAESKey()
+
+    val encryptedKey = encryptWithPublicKey(professorKey, key)
+    val signedKey = signEncryptedKey(privateKey, encryptedKey)
 }
