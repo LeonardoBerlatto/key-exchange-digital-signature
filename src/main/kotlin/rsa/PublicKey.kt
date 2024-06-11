@@ -13,12 +13,12 @@ data class PublicKey(val exponent: BigInteger, val modulus: BigInteger) : Key {
     }
 
     override fun toString(): String {
-        return "PublicKey(exponent=$exponent, modulus=$modulus)"
+        return "(e=${hexExponent()}, N=${hexModulus()})"
     }
 
     companion object {
-        fun fromHex(e: String, n: String): PublicKey {
-            return PublicKey(BigInteger(e, 16), BigInteger(n, 16))
+        fun fromHex(exponent: String, modulus: String): PublicKey {
+            return PublicKey(BigInteger(exponent, 16), BigInteger(modulus, 16))
         }
     }
 }

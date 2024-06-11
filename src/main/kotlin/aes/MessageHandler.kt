@@ -4,20 +4,18 @@ import org.example.rsa.PrivateKey
 import org.example.rsa.PublicKey
 import java.math.BigInteger
 import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
 
-fun generateAESKey(): SecretKey {
+fun generateAESKey(): BigInteger {
     val keyGen = KeyGenerator.getInstance("AES")
     keyGen.init(128)
-    return keyGen.generateKey()
+    keyGen.generateKey()
+    return BigInteger(1, keyGen.generateKey().encoded)
 }
 
-fun encryptWithPublicKey(publicKey: PublicKey, key: SecretKey): BigInteger {
-    val keyBytes = key.encoded
-    val keyInt = BigInteger(1, keyBytes)
-    return keyInt.modPow(publicKey.exponent, publicKey.modulus)
+fun encryptWithPublicKey(key: BigInteger, publicKey: PublicKey): BigInteger {
+    return key.modPow(publicKey.exponent, publicKey.modulus)
 }
 
-fun signEncryptedKey(privateKey: PrivateKey, encryptedKey: BigInteger): BigInteger {
+fun signEncryptedKey(encryptedKey: BigInteger, privateKey: PrivateKey): BigInteger {
     return encryptedKey.modPow(privateKey.exponent, privateKey.modulus)
 }
