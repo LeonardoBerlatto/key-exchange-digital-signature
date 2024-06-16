@@ -1,6 +1,6 @@
 package org.example.rsa
 
-import org.example.utils.PrimeGenerator
+import org.example.utils.PrimeUtils
 import java.math.BigInteger
 import java.security.SecureRandom
 
@@ -9,8 +9,8 @@ private const val PRIME_SIZE = 1024
 private const val KEY_EXPONENT_SIZE = 128
 
 fun generateKeyPair(): Pair<PublicKey, PrivateKey> {
-    val firstPrime = PrimeGenerator.generatePrime(PRIME_SIZE)
-    val secondPrime = PrimeGenerator.generatePrime(PRIME_SIZE)
+    val firstPrime = PrimeUtils.generatePrime(PRIME_SIZE)
+    val secondPrime = PrimeUtils.generatePrime(PRIME_SIZE)
 
     val modulus = getSystemModulus(firstPrime, secondPrime)
 

@@ -14,4 +14,6 @@ data class PrivateKey(val exponent: BigInteger, val modulus: BigInteger) : Key {
     override fun toString(): String {
         return "PrivateKey(exponent=$exponent, modulus=$modulus)"
     }
+
+    override fun isPrivateKey() = true
 }

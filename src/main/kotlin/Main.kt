@@ -1,23 +1,30 @@
 package org.example
 
-import org.example.aes.encryptWithPublicKey
-import org.example.aes.generateAESKey
-import org.example.aes.signEncryptedKey
+import org.example.aes.*
+import org.example.rsa.Key
 import org.example.rsa.PublicKey
 import org.example.rsa.generateKeyPair
+import org.example.sha256.hash
+import org.example.utils.StorageUtils.readAESKey
+import org.example.utils.StorageUtils.readEncryptedMessage
+import org.example.utils.StorageUtils.readProfessorPublicKey
+import org.example.utils.StorageUtils.readSignature
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardOpenOption.APPEND
 
-fun readProfessorPublicKey(filePath: String): Pair<String, String> {
-    val path = Paths.get(filePath)
-    val lines = Files.readAllLines(path)
-    require(lines.size >= 2) { "The file must contain at least two lines." }
-    return Pair(lines[0].trim(), lines[1].trim())
+
+
+fun writeToFile(key: Key) {
+    val path = Paths.get("src/main/resources/${if (key.isPrivateKey()) "private" else "public"}_key.txt")
+    Files.write(path, key.hexExponent().toByteArray())
+    Files.write(path, "\n".toByteArray(), APPEND)
+    Files.write(path, key.hexModulus().toByteArray(), APPEND)
 }
 
-fun main() {
 
-    val professorKey = readProfessorPublicKey("src/main/resources/professor_public_key.txt")
+fun generateKeys() {
+    val professorKey = readProfessorPublicKey()
 
     val professorPublicKey = PublicKey.fromHex(
         exponent = professorKey.first,
@@ -27,15 +34,70 @@ fun main() {
     val publicKey = keyPair.first
     val privateKey = keyPair.second
 
-    println("Public key: ${publicKey.hexExponent()}")
-    println("Private key: ${privateKey.hexExponent()}")
+    writeToFile(privateKey)
+    writeToFile(publicKey)
 
     val key = generateAESKey()
+    Files.write(Paths.get("src/main/resources/aes_key.txt"), key.toHex().toByteArray())
 
     val encryptedKey = encryptWithPublicKey(key, professorPublicKey)
+    Files.write(Paths.get("src/main/resources/aes_encrypted_key.txt"), encryptedKey.toHex().toByteArray())
+
     val signedKey = signEncryptedKey(encryptedKey, privateKey)
+    Files.write(Paths.get("src/main/resources/aes_signed_key.txt"), signedKey.toHex().toByteArray())
 
     println("Encrypted key(x): $encryptedKey")
     println("Signed key(sig x): $signedKey")
     println("Public key(pk a): $publicKey")
+}
+
+fun verifySignature() {
+    val professorKey = readProfessorPublicKey()
+    val professorPublicKey = PublicKey.fromHex(
+        exponent = professorKey.first,
+        modulus = professorKey.second
+    )
+
+    val message = readEncryptedMessage()
+    val signature = readSignature()
+
+    hash(message.toByteArray())
+
+    org.example.sha256.verifySignature(signature, hash(message.toByteArray()), professorPublicKey)
+}
+
+fun decryptMessage() {
+    val message = readEncryptedMessage()
+
+    val data = convertEncryptedMessage(message)
+
+    decryptAES(data, readAESKey())
+}
+
+
+fun invertAndSign() {
+    TODO("Not yet implemented")
+}
+
+
+fun main() {
+    var mustExecute = true
+    while (mustExecute) {
+        println("0. Generate keys")
+        println("1. Verify signature")
+        println("2. Decrypt message")
+        println("3. Invert and sign")
+        println("4. Exit")
+        print("Enter your choice: ")
+        val choice = readLine()!!.toInt()
+        when (choice) {
+            0 -> generateKeys()
+            1 -> verifySignature()
+            2 -> decryptMessage()
+            3 -> invertAndSign()
+            4 -> mustExecute = false
+            else -> println("Invalid choice")
+        }
+    }
+
 }

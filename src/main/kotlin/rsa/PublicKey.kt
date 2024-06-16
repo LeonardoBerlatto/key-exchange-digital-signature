@@ -16,6 +16,8 @@ data class PublicKey(val exponent: BigInteger, val modulus: BigInteger) : Key {
         return "(e=${hexExponent()}, N=${hexModulus()})"
     }
 
+    override fun isPrivateKey() = false
+
     companion object {
         fun fromHex(exponent: String, modulus: String): PublicKey {
             return PublicKey(BigInteger(exponent, 16), BigInteger(modulus, 16))
