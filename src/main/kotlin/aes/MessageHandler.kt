@@ -6,6 +6,7 @@ import org.example.utils.HexUtils.hexStringToByteArray
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
+import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.spec.IvParameterSpec
@@ -30,17 +31,19 @@ fun signEncryptedKey(encryptedKey: AESKey, privateKey: PrivateKey): AESKey =
 fun convertEncryptedMessage(hexMessage: String): AESData {
     val encryptedMessage = hexStringToByteArray(hexMessage)
 
-    val iv = encryptedMessage.sliceArray(0 until 16)
-    val encryptedData = encryptedMessage.sliceArray(16 until encryptedMessage.size)
+    require(encryptedMessage.size >= 16) { "Encrypted message is too short to contain IV." }
+
+    val iv = Arrays.copyOfRange(encryptedMessage, 0, 16)
+    val encryptedData = Arrays.copyOfRange(encryptedMessage, 16, encryptedMessage.size)
 
     return AESData(iv, encryptedData)
 }
 
 fun convertSignature(signatureHex: String) = BigInteger(signatureHex, 16)
 
-fun decryptAES(data: AESData, key: ByteArray): String {
+fun decryptAES(data: AESData, key: String): String {
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-    val secretKey = SecretKeySpec(key, "AES")
+    val secretKey = SecretKeySpec(hexStringToByteArray(key), AES_KEY)
     val ivSpec = IvParameterSpec(data.iv)
     cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
     val decryptedMessage = cipher.doFinal(data.encryptedMessage)
@@ -49,7 +52,7 @@ fun decryptAES(data: AESData, key: ByteArray): String {
 
 fun encryptAES(message: ByteArray, key: ByteArray, iv: ByteArray): AESData {
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-    val secretKey = SecretKeySpec(key, "AES")
+    val secretKey = SecretKeySpec(key, AES_KEY)
     val ivSpec = IvParameterSpec(iv)
     cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec)
     return AESData(

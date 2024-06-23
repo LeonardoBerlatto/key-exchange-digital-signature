@@ -5,6 +5,8 @@ import org.example.rsa.Key
 import org.example.rsa.PublicKey
 import org.example.rsa.generateKeyPair
 import org.example.sha256.hash
+import org.example.sha256.verifySignature
+import org.example.utils.HexUtils.hexStringToByteArray
 import org.example.utils.StorageUtils.readAESKey
 import org.example.utils.StorageUtils.readEncryptedMessage
 import org.example.utils.StorageUtils.readProfessorPublicKey
@@ -61,17 +63,21 @@ fun verifySignature() {
     val message = readEncryptedMessage()
     val signature = readSignature()
 
-    hash(message.toByteArray())
-
-    org.example.sha256.verifySignature(signature, hash(message.toByteArray()), professorPublicKey)
+    val hashedMessage = hash(message)
+    val isVerified = verifySignature(signature, hashedMessage, professorPublicKey)
+    println("Signature ${if (isVerified) "verified" else "not verified"}")
 }
 
 fun decryptMessage() {
     val message = readEncryptedMessage()
-
     val data = convertEncryptedMessage(message)
 
-    decryptAES(data, readAESKey())
+   try {
+       val decryptedMessage = decryptAES(data, readAESKey())
+       println("Successfully decrypted message: $decryptedMessage")
+   } catch (e: Exception) {
+       println("Failed to decrypt message")
+   }
 }
 
 

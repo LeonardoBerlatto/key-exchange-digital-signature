@@ -1,4 +1,5 @@
 package org.example.utils
+import java.util.HexFormat
 
 object HexUtils {
 
@@ -9,5 +10,10 @@ object HexUtils {
             result[i / 2] = byte
         }
         return result
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun byteArrayToHexString(byteArray: ByteArray): String {
+        return HexFormat.of().formatHex(byteArray)
     }
 }

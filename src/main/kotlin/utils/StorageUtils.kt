@@ -9,7 +9,7 @@ object StorageUtils {
 
     fun readSignature() = Files.readAllLines(Paths.get("src/main/resources/c_sign.txt"))[1]
 
-    fun readAESKey() = Files.readAllBytes(Paths.get("src/main/resources/aes_key.txt"))
+    fun readAESKey() = Files.readAllLines(Paths.get("src/main/resources/aes_key.txt"))[0]
 
     fun readProfessorPublicKey(): Pair<String, String> {
         val path = Paths.get("src/main/resources/professor_public_key.txt")
