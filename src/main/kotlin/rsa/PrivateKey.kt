@@ -16,4 +16,13 @@ data class PrivateKey(val exponent: BigInteger, val modulus: BigInteger) : Key {
     }
 
     override fun isPrivateKey() = true
+
+    companion object {
+        fun fromHex(exponent: String, modulus: String): PrivateKey {
+            return PrivateKey(
+                exponent = BigInteger(exponent, 16),
+                modulus = BigInteger(modulus, 16)
+            )
+        }
+    }
 }

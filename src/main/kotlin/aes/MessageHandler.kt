@@ -14,6 +14,8 @@ import javax.crypto.spec.SecretKeySpec
 
 private const val AES_KEY = "AES"
 private const val EXPECTED_KEY_SIZE = 128
+private const val DEFAULT_IV_SIZE = 16
+
 
 fun generateAESKey(): AESKey {
     val keyGen = KeyGenerator.getInstance(AES_KEY)
@@ -22,24 +24,26 @@ fun generateAESKey(): AESKey {
 }
 
 fun encryptWithPublicKey(key: AESKey, publicKey: PublicKey): AESKey =
-    AESKey(key.exponent.modPow(publicKey.exponent, publicKey.modulus))
+    AESKey(key.value.modPow(publicKey.exponent, publicKey.modulus))
 
 
 fun signEncryptedKey(encryptedKey: AESKey, privateKey: PrivateKey): AESKey =
-    AESKey(encryptedKey.exponent.modPow(privateKey.exponent, privateKey.modulus))
+    AESKey(encryptedKey.value.modPow(privateKey.exponent, privateKey.modulus))
+
+
 
 fun convertEncryptedMessage(hexMessage: String): AESData {
     val encryptedMessage = hexStringToByteArray(hexMessage)
 
-    require(encryptedMessage.size >= 16) { "Encrypted message is too short to contain IV." }
+    require(encryptedMessage.size >= DEFAULT_IV_SIZE) { "Encrypted message is too short to contain IV." }
 
-    val iv = Arrays.copyOfRange(encryptedMessage, 0, 16)
-    val encryptedData = Arrays.copyOfRange(encryptedMessage, 16, encryptedMessage.size)
+    val iv = Arrays.copyOfRange(encryptedMessage, 0, DEFAULT_IV_SIZE)
+    val encryptedData = Arrays.copyOfRange(encryptedMessage, DEFAULT_IV_SIZE, encryptedMessage.size)
 
     return AESData(iv, encryptedData)
 }
 
-fun convertSignature(signatureHex: String) = BigInteger(signatureHex, 16)
+fun convertSignature(signatureHex: String) = BigInteger(signatureHex, DEFAULT_IV_SIZE)
 
 fun decryptAES(data: AESData, key: String): String {
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
@@ -62,7 +66,7 @@ fun encryptAES(message: ByteArray, key: ByteArray, iv: ByteArray): AESData {
 }
 
 
-fun generateRandomIV(size: Int = 16): ByteArray {
+fun generateRandomIV(size: Int = DEFAULT_IV_SIZE): ByteArray {
     val iv = ByteArray(size)
     val secureRandom = SecureRandom()
     secureRandom.nextBytes(iv)

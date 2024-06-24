@@ -2,10 +2,10 @@ package org.example.aes
 
 import java.math.BigInteger
 
-data class AESKey(val exponent: BigInteger) {
+data class AESKey(val value: BigInteger) {
 
     fun toHex(): String {
-        return exponent.toString(16)
+        return value.toString(16)
     }
 
     override fun toString(): String {
