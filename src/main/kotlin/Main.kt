@@ -1,7 +1,6 @@
 package org.example
 
 import org.example.aes.*
-import org.example.rsa.Key
 import org.example.rsa.PrivateKey
 import org.example.rsa.PublicKey
 import org.example.rsa.generateKeyPair
@@ -16,22 +15,13 @@ import org.example.utils.StorageUtils.readPrivateKey
 import org.example.utils.StorageUtils.readProfessorPublicKey
 import org.example.utils.StorageUtils.readSignature
 import org.example.utils.StorageUtils.writeMessageAndSignature
+import org.example.utils.StorageUtils.writeToFile
 import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardOpenOption.APPEND
 
 
-
-fun writeToFile(key: Key) {
-    val path = Paths.get("src/main/resources/${if (key.isPrivateKey()) "private" else "public"}_key.txt")
-    Files.write(path, key.hexExponent().toByteArray())
-    Files.write(path, "\n".toByteArray(), APPEND)
-    Files.write(path, key.hexModulus().toByteArray(), APPEND)
-}
-
-
-
+private const val LINE_BREAKER = "-----------------------------"
 
 fun generateKeys() {
     val professorKey = readProfessorPublicKey()
@@ -116,16 +106,19 @@ fun invertAndSign() {
 }
 
 
+
 fun main() {
     var mustExecute = true
     while (mustExecute) {
+        println("------------Part 1-----------")
         println("0. Generate keys")
+        println("------------Part 2-----------")
         println("1. Verify signature")
         println("2. Decrypt message")
         println("3. Invert and sign")
         println("4. Exit")
+        println(LINE_BREAKER)
         print("Enter your choice: ")
-        println("-----------------------------")
         val choice = readLine()!!.toInt()
         when (choice) {
             0 -> generateKeys()
@@ -135,7 +128,7 @@ fun main() {
             4 -> mustExecute = false
             else -> println("Invalid choice")
         }
-        println("-----------------------------")
+        println(LINE_BREAKER)
     }
 
 }

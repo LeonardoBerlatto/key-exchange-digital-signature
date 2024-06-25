@@ -10,7 +10,7 @@ private const val SHA_256_KEY = "SHA-256"
 
 fun hash(message: String): String {
     val bytes = MessageDigest.getInstance(SHA_256_KEY).digest(hexStringToByteArray(message))
-    return byteArrayToHexString(bytes) //1704
+    return byteArrayToHexString(bytes)
 }
 
 fun verifySignature(signature: String, hash: String, publicKey: PublicKey): Boolean {

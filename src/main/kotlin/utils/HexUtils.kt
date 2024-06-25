@@ -12,7 +12,6 @@ object HexUtils {
         return result
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     fun byteArrayToHexString(byteArray: ByteArray): String {
         return HexFormat.of().formatHex(byteArray)
     }

@@ -1,5 +1,6 @@
 package org.example.utils
 
+import org.example.rsa.Key
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption.APPEND
@@ -33,5 +34,12 @@ object StorageUtils {
         Files.write(path, message.toByteArray())
         Files.write(path, "\n".toByteArray(), APPEND)
         Files.write(path, signature.toByteArray(), APPEND)
+    }
+
+    fun writeToFile(key: Key) {
+        val path = Paths.get("src/main/resources/${if (key.isPrivateKey()) "private" else "public"}_key.txt")
+        Files.write(path, key.hexExponent().toByteArray())
+        Files.write(path, "\n".toByteArray(), APPEND)
+        Files.write(path, key.hexModulus().toByteArray(), APPEND)
     }
 }
